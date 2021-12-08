@@ -1,0 +1,41 @@
+body {
+    background-color: rgb(10, 122, 197);
+    margin: 0;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.container {
+    background-color: orange;
+    display: flex;
+    flex-direction: column;  /* make main axis vertical */
+    justify-content: center; /* center items vertically, in this case */
+    align-items: center;     /* center items horizontally, in this case */
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    border: 5px solid black;
+    border-radius: 5%;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.columns {
+    flex-direction: column;
+}
+
+.hcenter {
+    justify-content: center;
+}
+
+.vcenter {
+    align-items: center;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
