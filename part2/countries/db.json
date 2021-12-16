@@ -1,0 +1,9 @@
+{
+  "countries": [
+    {
+      "name": {"common": "London"},
+      "capital": "json-server",
+      "population": "typicode"
+    }
+  ]
+}
