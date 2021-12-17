@@ -75,6 +75,7 @@ const App = () => {
 
   let countriesToFilter = ''
 
+  // crawl countries and weathers data
   useEffect(() => {
     axios.get('https://restcountries.com/v3.1/all').then(response => {
       console.log("fetching countries")

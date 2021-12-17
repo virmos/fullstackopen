@@ -4,3 +4,5 @@ https://stackoverflow.com/questions/2800964/benefits-of-prototypal-inheritance-o
 
 * Private variables with closure
 
+* Javascript
+https://javascript.info/classes
