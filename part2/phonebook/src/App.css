@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.btn {
+  margin-left: 5px;
+}
+
+.noti {
+  margin: 5px;
+  padding: 5px;
+}
+
+.error {
+  border: 3px solid #db1f1f;
+  border-radius: 3px;
+  color: #db1f1f;
+}
+
+.success {
+  border: 3px solid #5dc418;
+  border-radius: 3px;
+  color: #5dc418;
+}
