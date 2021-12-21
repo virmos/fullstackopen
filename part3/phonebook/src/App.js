@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import './App.css';
 
+import './App.css';
 import Persons from './components/Persons.js'
 import Form from './components/Form.js'
 import SearchFilter from './components/SearchFilter.js'

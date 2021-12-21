@@ -1,52 +1,63 @@
+// const fs = require('fs')
+// const morgan = require('morgan')
+// const path = require('path')
 const express = require('express')
+const cors = require('cors')
+const mongoose = require('mongoose')
+const dotenv = require('dotenv')
+
 const app = express()
+dotenv.config()
 
-let persons = [
-  {
-    "name": "Arto Hellas",
-    "number": "040-123456",
-    "id": 1
-  },
-  {
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523",
-    "id": 2
-  },
-  {
-    "name": "Dan Abramov",
-    "number": "12-43-234345",
-    "id": 3
-  },
-  {
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122",
-    "id": 4
-  },
-  {
-    "name": "Bob",
-    "number": "3",
-    "id": 5
-  },
-  {
-    "name": "Lucy",
-    "number": "7",
-    "id": 6
-  },
-  {
-    "name": "Ding",
-    "number": "8",
-    "id": 7
+mongoose.connect(process.env.CLASS_DB_URI)
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
   }
-]
+})
 
-app.use(express.json())
+const Person = mongoose.model('Person', personSchema)
 
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => n.id))
-    : 0
-  return maxId + 1
+const addDataToMongoDB = (persons) => {
+  let promises = []
+  for (let personIndex in persons) {
+    const person = new Person({
+      name: persons[personIndex].name,
+      number: persons[personIndex].number,
+    })
+    
+    promises.push(person.save())
+  }
+  Promise.all(promises).then(() => {
+    console.log("persons saved")
+    mongoose.connection.close()
+  })
 }
+
+app.use(cors())
+app.use(express.static('build'))
+app.use(express.json())
+// var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+// morgan.token('type', function (req, res) { return JSON.stringify(req.body) })
+// app.use(morgan(
+// (tokens, req, res) => {
+//   return [
+//     tokens.method(req, res),
+//     tokens.url(req, res),
+//     tokens.status(req, res),
+//     tokens.res(req, res, 'content-length'), '-',
+//     tokens['response-time'](req, res), 'ms',
+//     tokens.type(req, res),
+//   ].join(' ')}
+//   ,{ stream: accessLogStream }
+// ))
 
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
@@ -58,8 +69,18 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
+app.get('/api/info', (request, response) => {
+  response.send(`<div>Phonebook has ${persons.length} persons</div>
+                <div>${new Date()}</div>`)
+})
+
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      response.json(person)
+    })
+    mongoose.connection.close()
+  })
 })
 
 app.post('/api/persons', (request, response) => {
@@ -69,14 +90,48 @@ app.post('/api/persons', (request, response) => {
       error: 'content missing' 
     })
   }
+  if (!body.name || !body.number) {
+    return response.status(400).json({ 
+      error: 'missing name or number' 
+    })
+  }
+  if (persons.filter(person => person.name === body.name).length !== 0) {
+    return response.status(400).json({ 
+      error: 'person already existed' 
+    })
+  }
+
   const person = {
     name: body.name,
     number: body.number,
-    id: generateId(),
-    // important: body.important || false,
+    id: Math.floor(Math.random() * 1000000),
   }
   persons = persons.concat(person)
   response.json(person)
+})
+
+app.put('/api/persons/:id', (request, response) => {
+  const body = request.body
+  if (!body) {
+    return response.status(400).json({ 
+      error: 'content missing' 
+    })
+  }
+  if (!body.name || !body.number) {
+    return response.status(400).json({ 
+      error: 'missing name or number' 
+    })
+  }
+  const id = Number(request.params.id)
+  const person = persons.find(person => person.id === id)
+
+  person.name = body.name
+  person.number = body.number
+  if (person) {
+    response.json(person)
+  } else {
+    response.status(404).end()
+  }
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -86,6 +141,6 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)

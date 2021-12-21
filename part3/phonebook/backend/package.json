@@ -5,12 +5,23 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "deploy": "git add . && git commit -m uibuild && git push heroku master",
+    "logs": "heroku logs --tail",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^2.0.15"
+    "@heroku-cli/plugin-buildpacks": "^7.54.0",
+    "body-parser": "*",
+    "cors": "^2.8.5",
+    "express": "*",
+    "heroku": "^7.59.2",
+    "mongoose": "^6.1.2",
+    "morgan": "^1.10.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
