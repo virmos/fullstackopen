@@ -71,65 +71,57 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
+    
     const personsWithSameName = persons.filter((person) => person.name === newName)
     if (personsWithSameName.length === 1) {
       if (window.confirm(`Update ${newName}?`)) {
         const id = personsWithSameName[0].id
         const newPerson = {
-          name: newName, number: newNumber, id: id // ids are current array length
+          name: newName, number: newNumber, _id: id 
         }
         personServices.update(id, newPerson)
-        .then(getAllPersons())
-        .catch(error => {
-          handleErrorMessage(error)
-        })
-        handleSuccessMessage(`Updated ${newName}`)
-
+          .then(updatedPerson => {
+            getAllPersons()
+            handleSuccessMessage(`Updated ${newName}`)
+          })
+          .catch(error => {
+            const errorMessage = error.response.data.error
+            handleErrorMessage(errorMessage)
+          })
       }
     } 
     else {
       const newPerson = {
-        name: newName, number: newNumber, id: persons.length + 1 // ids are current array length
+        name: newName, number: newNumber
       }
       personServices.create(newPerson)
-      .then(getAllPersons)
-      .catch(error => {
-        handleErrorMessage(error)
-      })
-      handleSuccessMessage(`Updated ${newName}`)
+        .then(createdPerson => {
+          getAllPersons()
+          handleSuccessMessage(`Updated ${newName}`)
+        })
+        .catch(error => {
+          const errorMessage = error.response.data.error
+          handleErrorMessage(errorMessage)
+        })
+      
+      
     }
   }
 
   const removePerson = (id, name) => {
-    if (persons.filter((person) => person.id === id).length === 0) {
-      handleErrorMessage(`Person with ${id} cannot be found the phonebook`)
-    } 
-    else {
-      if (window.confirm(`Delete ${name}?`)) {
-        require('events').EventEmitter.prototype._maxListeners = 70;
+    if (window.confirm(`Delete ${name}?`)) {
+      require('events').EventEmitter.prototype._maxListeners = 70;
 
-        const personsToUpdate = persons.filter(person => person.id > id)
-        const updatedPersons = personsToUpdate.map(person => {
-          const newPerson = {
-            ...person, id : person.id - 1
-          }
-          return newPerson
+      personServices.remove(id)
+        .then(result => {
+          getAllPersons()
+          handleSuccessMessage(`Successfully remove ${name}`)
         })
-
-        const lastId = persons.length
-
-        const updateRequests = updatedPersons.map(person => personServices.update(person.id, person))
-        const removeLast = personServices.remove(lastId)
-        Promise.all(updateRequests)
-        .then(removeLast)
-        .then(getAllPersons)
         .catch(error => {
+          const errorMessage = error.response.data.error
           setNotificationMessage('Removed')
-          handleErrorMessage(error)
+          handleErrorMessage(errorMessage)
         })
-        handleSuccessMessage(`Successfully remove ${name}`)
-
-      }
     }
   }
   

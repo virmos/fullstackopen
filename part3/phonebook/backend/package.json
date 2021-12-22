@@ -16,12 +16,17 @@
     "@heroku-cli/plugin-buildpacks": "^7.54.0",
     "body-parser": "*",
     "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
     "express": "*",
     "heroku": "^7.59.2",
     "mongoose": "^6.1.2",
+    "mongoose-unique-validator": "^3.0.0",
     "morgan": "^1.10.0"
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.5.0"
   }
 }
